@@ -44,7 +44,7 @@ def current_weather(lat: float, lon: float) -> dict:
 
     result = {
         'city': data['geo_object']['locality']['name'],
-        'time': datetime.fromtimestamp(data['fact']['uptime']).strftime("%H:%M"),
+        'time': datetime.fromtimestamp(data['fact']['obs_time']).strftime("%H:%M"),
         'temp': data['fact']['temp'],  # TODO Реализовать вычисление температуры из данных полученных от API
         'feels_like_temp': data['fact']['feels_like'],  # TODO Реализовать вычисление ощущаемой температуры из данных полученных от API
         'pressure': data['fact']['pressure_mm'],  # TODO Реализовать вычисление давления из данных полученных от API
