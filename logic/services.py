@@ -27,7 +27,7 @@ def filtering_category(database: dict,
                 result.append(value)
     else:
         # TODO Трансформируйте database в список словарей
-        result = [[key, value] for key, value in database.items()]
+        result = [value for value in database.values()]
 
     if ordering_key is not None:
         # TODO Проведите сортировку result по ordering_key и параметру reverse
@@ -73,15 +73,12 @@ def add_to_cart(id_product: str) -> bool:
     # TODO Не забываем записать обновленные данные cart в 'cart.json'
 
     if DATABASE.get(id_product) is not None:
-        if id_product not in cart['products']:
-            with open('cart.json', 'w', encoding='utf-8') as f:
+        with open('cart.json', 'w', encoding='utf-8') as f:
+            if id_product not in cart['products']:
                 cart['products'][id_product] = 1
-                json.dump(cart, f)
-
-        else:
-            with open('cart.json', 'w', encoding='utf-8') as f:
+            else:
                 cart['products'][id_product] += 1
-                json.dump(cart, f)
+            json.dump(cart, f)
     else:
         return False
 
