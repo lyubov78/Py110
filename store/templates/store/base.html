@@ -3,7 +3,9 @@
 <html lang="en">
 <head>
     {% block title %} <!-- Блок для названия страницы-->
-    <head>
+    {% endblock %}
+
+    {% block head %} <!-- Блок ссылок в head-->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -30,11 +32,6 @@
     <link rel="stylesheet" href="{% static 'store/css/flaticon.css' %}">
     <link rel="stylesheet" href="{% static 'store/css/icomoon.css' %}">
     <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
-  </head>
-    {% endblock %}
-
-    {% block head %} <!-- Блок ссылок в head-->
-
     {% endblock %}
 </head>
 <body class="goto-here">
