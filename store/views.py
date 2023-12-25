@@ -38,23 +38,32 @@ def products_page_view(request, page):
         if isinstance(page, str):
             for data in DATABASE.values():
                 if data['html'] == page:
-                    with open(f'store/products/{page}.html', 'r', encoding="utf-8") as f:
-                        data = f.read()
-                        return HttpResponse(data)
+                    return render(request, "store/product.html", context={"product": data})
+
         elif isinstance(page, int):
-            data = DATABASE.get(str(page))
+            # Обрабатываем условие того, что пытаемся получить страницу товара по его id
+            data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
             if data:
-                with open(f'store/products/{data["html"]}.html', 'r', encoding="utf-8") as f:
-                    data = f.read()
-                    return HttpResponse(data)
+                return render(request, "store/product.html", context={"product": data})
+
         return HttpResponse(status=404)
 
 
 def shop_view(request):
     if request.method == "GET":
-        return render(request,
-                      'store/shop.html',
-                      context={"products": DATABASE.values()})
+        # Обработка фильтрации из параметров запроса
+        category_key = request.GET.get("category")
+        if ordering_key := request.GET.get("ordering"):
+            if request.GET.get("reverse") in ('true', 'True'):
+                data = filtering_category(DATABASE, category_key, ordering_key,
+                                          True)
+            else:
+                data = filtering_category(DATABASE, category_key, ordering_key)
+        else:
+            data = filtering_category(DATABASE, category_key)
+        return render(request, 'store/shop.html',
+                      context={'products': data,
+                               'category': category_key})
 
 
 def cart_view(request):
@@ -67,7 +76,7 @@ def cart_view(request):
         for product_id, quantity in data['products'].items():
             product = dict(DATABASE[product_id])  # 1. Получите информацию о продукте из DATABASE по его product_id. product будет словарём
             # 2. в словарь product под ключом "quantity" запишите текущее значение товара в корзине
-            product[quantity] = data
+            product['quantity'] = quantity
             product["price_total"] = f"{quantity * product['price_after']:.2f}"  # добавление общей цены позиции с ограничением в 2 знака
             # 3. добавьте product в список products
             products.append(product)
