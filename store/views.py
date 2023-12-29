@@ -6,7 +6,6 @@ from logic.services import filtering_category
 from logic.services import view_in_cart, add_to_cart, remove_from_cart
 from django.shortcuts import render
 
-# Create your views here.
 
 def products_view(request):
     if request.method == "GET":
@@ -38,13 +37,19 @@ def products_page_view(request, page):
         if isinstance(page, str):
             for data in DATABASE.values():
                 if data['html'] == page:
-                    return render(request, "store/product.html", context={"product": data})
+                    data_category = filtering_category(DATABASE, category_key=data['category'])
+                    data_category.remove(data)
+                    return render(request, "store/product.html", context={"product": data,
+                                                                          "prod_category": data_category[:5]})
 
         elif isinstance(page, int):
             # Обрабатываем условие того, что пытаемся получить страницу товара по его id
             data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
             if data:
-                return render(request, "store/product.html", context={"product": data})
+                data_category = filtering_category(DATABASE, category_key=data['category'])
+                data_category.remove(data)
+                return render(request, "store/product.html", context={"product": data,
+                                                                      "prod_category": data_category[:5]})
 
         return HttpResponse(status=404)
 
@@ -72,12 +77,14 @@ def cart_view(request):
         if request.GET.get('format') == 'JSON':
             return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
                                                          'indent': 4})
-        products = []    # Список продуктов
+        products = []  # Список продуктов
         for product_id, quantity in data['products'].items():
-            product = dict(DATABASE[product_id])  # 1. Получите информацию о продукте из DATABASE по его product_id. product будет словарём
+            product = dict(DATABASE[
+                               product_id])  # 1. Получите информацию о продукте из DATABASE по его product_id. product будет словарём
             # 2. в словарь product под ключом "quantity" запишите текущее значение товара в корзине
             product['quantity'] = quantity
-            product['price_total'] = f"{quantity * product['price_after']:.2f}"  # добавление общей цены позиции с ограничением в 2 знака
+            product[
+                'price_total'] = f"{quantity * product['price_after']:.2f}"  # добавление общей цены позиции с ограничением в 2 знака
             # 3. добавьте product в список products
             products.append(product)
 
