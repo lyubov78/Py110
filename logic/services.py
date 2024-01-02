@@ -133,6 +133,69 @@ def add_user_to_cart(request, username: str) -> None:
             json.dump(cart_users, f)
 
 
+def view_in_wishlist(request) -> dict:
+    """
+    Просматривает содержимое wishlist.json
+
+    :return: Содержимое 'wishlist.json'
+    """
+    if os.path.exists('wishlist.json'):
+        with open('wishlist.json', encoding='utf-8') as f:
+            return json.load(f)
+
+    user = get_user(request).username
+    wishlist = {user: {'products': []}}
+    with open('wishlist.json', mode='x', encoding='utf-8') as f:
+        json.dump(wishlist, f)
+
+    return wishlist
+
+
+def add_to_wishlist(request, id_product: str) -> bool:
+
+    wishlist_users = view_in_wishlist(request)
+    wishlist = wishlist_users[get_user(request).username]
+
+    if DATABASE.get(id_product) is not None:
+        with open('wishlist.json', 'w', encoding='utf-8') as f:
+            if id_product not in wishlist['products']:
+                wishlist['products'][id_product] += 1
+            else:
+                return False
+            json.dump(wishlist_users, f)
+    else:
+        return False
+
+    return True
+
+
+def remove_from_wishlist(request, id_product: str) -> bool:
+
+    wishlist_users = view_in_wishlist(request)
+    wishlist = wishlist_users[get_user(request).username]
+
+    if id_product in wishlist['products']:
+        with open('wishlist.json', 'w', encoding='utf-8') as f:
+            del wishlist['products'][id_product]
+            json.dump(wishlist_users, f)
+    else:
+        return False
+
+    return True
+
+
+def add_user_to_wishlist(request, username: str) -> None:
+
+    wishlist_users = view_in_wishlist(request)
+    wishlist = wishlist_users.get(username)
+
+    if not wishlist:
+        with open('wishlist.json', mode='w', encoding='utf-8') as f:
+            wishlist_users[username] = {'products': []}
+            json.dump(wishlist_users, f)
+
+
+
 if __name__ == "__main__":
     # Проверка работоспособности функций view_in_cart, add_to_cart, remove_from_cart
     # Для совпадения выходных значений перед запуском скрипта удаляйте появляющийся файл 'cart.json' в папке
