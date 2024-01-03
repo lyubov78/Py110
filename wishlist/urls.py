@@ -6,6 +6,6 @@ app_name = 'wishlist'
 urlpatterns = [
     path('', wishlist_view, name='wishlist_view'),
     path('api/', wishlist_json),
-    path('api/add/<str:id_product>', wishlist_add_json),
-    path('api/del/<str:id_product>', wishlist_del_json)
+    path('api/add/<str:id_product>', wishlist_add_json, name='wishlist_add_json'),
+    path('api/del/<str:id_product>', wishlist_del_json, name='wishlist_del_json')
 ]

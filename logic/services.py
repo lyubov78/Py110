@@ -1,5 +1,6 @@
 import json
 import os
+from django.contrib.auth.decorators import login_required
 from store.models import DATABASE
 from django.contrib.auth import get_user
 
@@ -133,6 +134,7 @@ def add_user_to_cart(request, username: str) -> None:
             json.dump(cart_users, f)
 
 
+@login_required(login_url='login:login_view')
 def view_in_wishlist(request) -> dict:
     """
     Просматривает содержимое wishlist.json
@@ -159,9 +161,7 @@ def add_to_wishlist(request, id_product: str) -> bool:
     if DATABASE.get(id_product) is not None:
         with open('wishlist.json', 'w', encoding='utf-8') as f:
             if id_product not in wishlist['products']:
-                wishlist['products'][id_product] += 1
-            else:
-                return False
+                wishlist['products'] += id_product
             json.dump(wishlist_users, f)
     else:
         return False
@@ -176,7 +176,7 @@ def remove_from_wishlist(request, id_product: str) -> bool:
 
     if id_product in wishlist['products']:
         with open('wishlist.json', 'w', encoding='utf-8') as f:
-            del wishlist['products'][id_product]
+            wishlist['products'].remove(id_product)
             json.dump(wishlist_users, f)
     else:
         return False
